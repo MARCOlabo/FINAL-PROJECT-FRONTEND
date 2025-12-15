@@ -26,21 +26,25 @@ export default function MeterReaderLogin() {
       const res = await loginadminReader({ username, password });
 
       if (res.data?.success) {
-        if (res.data?.role !== "meter_reader") {
-          setError("Access denied. This page is for meter readers only.");
-          return;
-        }
+  const { role, token, name, id } = res.data;
 
-        setSuccess("Login successful!");
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("role", res.data.role);
-        localStorage.setItem("name", res.data.name);
-        localStorage.setItem("id", res.data.id);
+  if (role !== "meter_reader") {
+    setError("Access denied. This page is for meter readers only.");
+    return;
+  }
 
-        navigate("/reader-dashboard");
-      } else {
-        setError(res.data?.message || "Login failed. Check credentials.");
-      }
+  // Save user info in localStorage
+  localStorage.setItem(
+    "user",
+    JSON.stringify({ role, name, id, token })
+  );
+
+  setSuccess("Login successful!");
+  navigate("/reader-dashboard");
+} else {
+  setError(res.data?.message || "Login failed. Check credentials.");
+}
+
     } catch (err) {
       console.error("Login error:", err);
       setError(

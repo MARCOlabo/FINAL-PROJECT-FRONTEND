@@ -23,20 +23,25 @@ export default function Login() {
     }
 
     try {
-      const res = await loginadminReader({ username, password });
+  const res = await loginadminReader({ username, password });
 
-      if (res.data?.success === true) {
-        if (res.data?.role !== "admin") {
-          setError("Access denied. This page is for admin only.");
-          return;
-        }
+  if (res.data?.success === true) {
+    const { role, message: token } = res.data;
 
-        setSuccess("Login successful!");
-        localStorage.setItem("token", res.data.message);
-        localStorage.setItem("role", res.data.role);
+    if (role !== "admin") {
+      setError("Access denied. This page is for admin only.");
+      return;
+    }
 
-        navigate("/admin-dashboard");
-      } else {
+    // Store user info in localStorage
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ role, token, username })
+    );
+
+    setSuccess("Login successful!");
+    navigate("/admin-dashboard");
+  } else {
         setError(res.data?.message || "Login failed. Check credentials.");
       }
     } catch (err) {
